@@ -1,0 +1,54 @@
+name: Build Cudy TR3600 v1 OpenWrt
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['config.seed', 'scripts/**', '.github/workflows/build.yml']
+  schedule:
+    - cron: '0 20 * * 5'
+permissions:
+  contents: read
+concurrency:
+  group: tr3600-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses-dev libssl-dev python3 python3-setuptools python3-pyelftools rsync swig unzip zlib1g-dev file wget curl libelf-dev time
+          df -h
+      - name: Prepare device support and packages
+        run: bash scripts/prepare.sh
+      - name: Download sources
+        working-directory: openwrt
+        run: make download -j4
+      - name: Compile firmware
+        working-directory: openwrt
+        run: |
+          set -o pipefail
+          make -j2 2>&1 | tee ../output/build.log || make -j1 V=s 2>&1 | tee -a ../output/build.log
+      - name: Collect firmware
+        run: |
+          shopt -s nullglob
+          images=(openwrt/bin/targets/mediatek/filogic/*cudy_tr3600-v1*.bin)
+          (( ${#images[@]} > 0 )) || { echo 'No TR3600 firmware produced'; exit 1; }
+          cp "${images[@]}" output/
+          cp openwrt/bin/targets/mediatek/filogic/*.manifest output/
+          cp openwrt/bin/targets/mediatek/filogic/profiles.json output/
+          (cd output && sha256sum *.bin > sha256sums)
+      - name: Upload firmware and diagnostic files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cudy-tr3600-v1-${{ github.run_number }}
+          path: output/
+          retention-days: 30
+          if-no-files-found: warn
