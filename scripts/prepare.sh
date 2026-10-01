@@ -14,11 +14,15 @@ git apply "$ROOT/device-fixes/cudy-tr3600-v1-fixes.patch"
 git clone --depth 1 https://github.com/vernesong/OpenClash.git "$ROOT/OpenClash"
 cp -a "$ROOT/OpenClash/luci-app-openclash" package/
 cp "$ROOT/config.seed" .config
+mkdir -p "$ROOT/output"
 make defconfig
+cp .config "$ROOT/output/build.config"
 # Do not silently build a different device or drop required packages.
+missing=0
 while IFS= read -r setting; do
-  case "$setting" in CONFIG_*=y) grep -Fxq "$setting" .config || { echo "Missing required setting: $setting"; exit 1; };; esac
+  case "$setting" in CONFIG_*=y) grep -Fxq "$setting" .config || { echo "Missing required setting: $setting" | tee -a "$ROOT/output/missing-settings.txt"; missing=1; };; esac
 done < "$ROOT/config.seed"
+(( missing == 0 )) || exit 1
 mkdir -p "$ROOT/output"
 {
   printf 'OpenWrt: '; git rev-parse HEAD
