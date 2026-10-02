@@ -3,9 +3,18 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 git clone --depth 1 --branch openwrt-25.12 https://github.com/openwrt/openwrt.git "$ROOT/openwrt"
 cd "$ROOT/openwrt"
-# Device support is not in the stable branch: use the device author's 25.12 PR.
-git fetch --depth 1 origin pull/24596/head
-git checkout --detach FETCH_HEAD
+# Keep the stable branch checked out; apply only the device support backport.
+mkdir -p "$ROOT/output"
+device_support_revision=046aec0dccd90f5a156cb8e9725c121c81955dd3
+curl --fail --location --retry 3 \
+  "https://github.com/openwrt/openwrt/commit/$device_support_revision.patch" \
+  -o "$ROOT/output/device-support.patch"
+if git apply --reverse --check "$ROOT/output/device-support.patch" 2>/dev/null; then
+  echo 'Device support is already present in the stable branch'
+else
+  git apply --check "$ROOT/output/device-support.patch"
+  git apply "$ROOT/output/device-support.patch"
+fi
 git clone --depth 1 https://github.com/hyqhyq3/openwrt-cudy-tr3600.git "$ROOT/device-fixes"
 git apply --check "$ROOT/device-fixes/cudy-tr3600-v1-fixes.patch"
 git apply "$ROOT/device-fixes/cudy-tr3600-v1-fixes.patch"
@@ -46,6 +55,8 @@ done < "$ROOT/config.seed"
 mkdir -p "$ROOT/output"
 {
   printf 'OpenWrt: '; git rev-parse HEAD
+  printf 'OpenWrt branch: '; git branch --show-current
+  printf 'Device support backport: %s\n' "$device_support_revision"
   printf 'Device fixes: '; git -C "$ROOT/device-fixes" rev-parse HEAD
   printf 'OpenClash: '; git -C "$ROOT/OpenClash" rev-parse HEAD
   printf 'Argon: '; git -C package/luci-theme-argon rev-parse HEAD

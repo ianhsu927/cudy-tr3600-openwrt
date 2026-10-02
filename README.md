@@ -4,7 +4,7 @@
 
 ## 内容
 
-- OpenWrt openwrt-25.12 的设备适配 PR #24596，以及社区的风扇、LED、MAC 修复。
+- OpenWrt `openwrt-25.12` 稳定分支，附加固定版本的设备适配 PR #24596 补丁，以及社区的风扇、LED、MAC 修复；不切换到 PR 分支或 master snapshot。
 - 中文 LuCI、HTTPS 管理、OpenClash 插件和 firewall4/nftables 依赖。
 - Argon 主题、SQM 队列管理、nlbwmon 流量统计。
 - 预装 OpenClash 官方分发的 ARM64 Meta/Mihomo 内核，版本来源及 SHA256 写入 openclash-core.txt。
@@ -17,7 +17,7 @@
 
 将本目录文件提交至 GitHub 仓库 main 分支（保留 .github 目录），打开 Actions → Build Cudy TR3600 v1 OpenWrt → Run workflow。成功后下载 artifact；失败 artifact 可能只有诊断文件。
 
-设备适配尚需 PR，因此准备阶段会严格检查修复补丁和必选包；上游发生不兼容变更时停止构建，不会生成其他机型固件。依赖会跟随各仓库版本，实际提交写入 sources.txt；这并非完全锁定的可复现构建。
+设备适配尚需 PR 补丁，因此准备阶段会严格检查修复补丁和必选包；上游发生不兼容变更时停止构建，不会生成其他机型固件。系统源码始终使用稳定分支，设备适配补丁固定为 `046aec0dccd90f5a156cb8e9725c121c81955dd3`。稳定分支及其他依赖会跟随各仓库版本，实际分支、提交和补丁版本写入 sources.txt；这并非完全锁定的可复现构建。
 
 ## OpenClash
 
