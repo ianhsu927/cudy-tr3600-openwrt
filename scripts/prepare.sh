@@ -25,6 +25,11 @@ cp -a "$ROOT/OpenClash/luci-app-openclash" package/
 # Use Argon's upstream package, including its OpenWrt APK support.
 ./scripts/feeds uninstall luci-theme-argon
 git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+./scripts/feeds uninstall luci-app-argon-config
+git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
+# The USB tethering repository contains the package in a subdirectory.
+git clone --depth 1 https://github.com/ianhsu927/luci-app-usb-tethering.git "$ROOT/usb-tethering"
+cp -a "$ROOT/usb-tethering/luci-app-usb-tethering" package/
 # Bundle the same ARM64 Meta core distributed by OpenClash. Resolve the
 # branch once so the downloaded binary and recorded revision stay aligned.
 mkdir -p "$ROOT/output" files/etc/openclash/core
@@ -60,6 +65,8 @@ mkdir -p "$ROOT/output"
   printf 'Device fixes: '; git -C "$ROOT/device-fixes" rev-parse HEAD
   printf 'OpenClash: '; git -C "$ROOT/OpenClash" rev-parse HEAD
   printf 'Argon: '; git -C package/luci-theme-argon rev-parse HEAD
+  printf 'Argon config: '; git -C package/luci-app-argon-config rev-parse HEAD
+  printf 'USB tethering: '; git -C "$ROOT/usb-tethering" rev-parse HEAD
   ./scripts/feeds list -s
 } > "$ROOT/output/sources.txt"
 cp .config "$ROOT/output/build.config"

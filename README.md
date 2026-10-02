@@ -6,7 +6,8 @@
 
 - OpenWrt `openwrt-25.12` 稳定分支，附加固定版本的设备适配 PR #24596 补丁，以及社区的风扇、LED、MAC 修复；不切换到 PR 分支或 master snapshot。
 - 中文 LuCI、HTTPS 管理、OpenClash 插件和 firewall4/nftables 依赖。
-- Argon 主题、SQM 队列管理、nlbwmon 流量统计。
+- Argon 主题及 Argon 配置插件、SQM 队列管理、nlbwmon 流量统计。
+- `luci-app-usb-tethering` USB 手机热点管理插件（网络 → USB 热点）。
 - 预装 OpenClash 官方分发的 ARM64 Meta/Mihomo 内核，版本来源及 SHA256 写入 openclash-core.txt。
 - 安卓 USB 共享：RNDIS、CDC Ethernet、CDC NCM。
 - iPhone USB 共享：ipheth、usbmuxd、libimobiledevice。
@@ -27,7 +28,9 @@
 
 安卓启用 USB 网络共享；iPhone 开启个人热点，通过数据线连接 USB-A 接口并点“信任”。USB-C 接口用于给路由器供电。
 
-在网络 → 接口添加 `usbwan`，协议 DHCP 客户端，设备选实际出现的 `usb0` 或 `eth*`，防火墙区域选 `wan`。不要把手机接口加入 LAN 网桥。iPhone 如未出现网卡，可通过 SSH 检查 `lsusb`、`logread` 和 `idevicepair pair`。
+可在网络 → USB 热点选择手机网卡并启用，由插件配置 DHCP 接口和防火墙。高级设置中的 metric 控制路由优先级，默认 100，通常作为有线 WAN 的备用线路。
+
+也可手动在网络 → 接口添加 `usbwan`，协议 DHCP 客户端，设备选实际出现的 `usb0` 或 `eth*`，防火墙区域选 `wan`；同一手机网卡只使用一种配置方式。不要把手机接口加入 LAN 网桥。iPhone 如未出现网卡，可通过 SSH 检查 `lsusb`、`logread` 和 `idevicepair pair`。
 
 多 WAN 自动切换未配置；同时使用有线 WAN 时按需求调整路由 metric。驱动预装不代表所有手机型号均已实测。
 
@@ -44,5 +47,7 @@ https://www.cudy.com/zh-cn/pages/download-center/tr3600-1-0
 - https://github.com/hyqhyq3/openwrt-cudy-tr3600
 - https://github.com/vernesong/OpenClash
 - https://github.com/jerrykuku/luci-theme-argon
+- https://github.com/jerrykuku/luci-app-argon-config
+- https://github.com/ianhsu927/luci-app-usb-tethering
 
 上游补丁和软件保留各自许可与版权；不重新声明其许可证。
