@@ -6,6 +6,8 @@
 
 - OpenWrt openwrt-25.12 的设备适配 PR #24596，以及社区的风扇、LED、MAC 修复。
 - 中文 LuCI、HTTPS 管理、OpenClash 插件和 firewall4/nftables 依赖。
+- Argon 主题、SQM 队列管理、nlbwmon 流量统计。
+- 预装 OpenClash 官方分发的 ARM64 Meta/Mihomo 内核，版本来源及 SHA256 写入 openclash-core.txt。
 - 安卓 USB 共享：RNDIS、CDC Ethernet、CDC NCM。
 - iPhone USB 共享：ipheth、usbmuxd、libimobiledevice。
 - 推送配置时编译，也可在 Actions 手动运行；每周六北京时间 04:00 编译。
@@ -19,7 +21,7 @@
 
 ## OpenClash
 
-插件预装。首次使用在服务 → OpenClash 下载 ARM64 的 Meta/Mihomo 内核，再导入自己的订阅或配置并启动。此仓库不包含订阅、账号或密钥。内核下载需要路由器先能访问下载源；也可以手动上传 ARM64 内核。请先验证新版本 OpenClash 在 25.12/apk 环境下的功能。
+插件和 ARM64 Meta/Mihomo 内核预装，内核路径为 `/etc/openclash/core/clash_meta`。首次使用在服务 → OpenClash 导入自己的订阅或配置并启动；后续可在插件内更新 ARM64 Meta 内核。此仓库不包含订阅、账号或密钥。构建时内核下载或架构检查失败会停止构建。请先验证新版本 OpenClash 在 25.12/apk 环境下的功能。
 
 ## USB 手机网络共享
 
@@ -41,5 +43,6 @@ https://www.cudy.com/zh-cn/pages/download-center/tr3600-1-0
 - https://github.com/openwrt/openwrt/pull/24596
 - https://github.com/hyqhyq3/openwrt-cudy-tr3600
 - https://github.com/vernesong/OpenClash
+- https://github.com/jerrykuku/luci-theme-argon
 
 上游补丁和软件保留各自许可与版权；不重新声明其许可证。

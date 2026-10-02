@@ -13,6 +13,26 @@ git apply "$ROOT/device-fixes/cudy-tr3600-v1-fixes.patch"
 ./scripts/feeds install -a
 git clone --depth 1 https://github.com/vernesong/OpenClash.git "$ROOT/OpenClash"
 cp -a "$ROOT/OpenClash/luci-app-openclash" package/
+# Use Argon's upstream package, including its OpenWrt APK support.
+./scripts/feeds uninstall luci-theme-argon
+git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+# Bundle the same ARM64 Meta core distributed by OpenClash. Resolve the
+# branch once so the downloaded binary and recorded revision stay aligned.
+mkdir -p "$ROOT/output" files/etc/openclash/core
+core_revision=$(git ls-remote https://github.com/vernesong/OpenClash.git refs/heads/core | awk '{print $1}')
+[[ "$core_revision" =~ ^[0-9a-f]{40}$ ]] || { echo 'Cannot resolve OpenClash core revision'; exit 1; }
+core_url="https://raw.githubusercontent.com/vernesong/OpenClash/$core_revision/master/meta/clash-linux-arm64.tar.gz"
+curl --fail --location --retry 3 "$core_url" -o "$ROOT/output/openclash-core.tar.gz"
+tar -xOzf "$ROOT/output/openclash-core.tar.gz" clash > files/etc/openclash/core/clash_meta
+test -s files/etc/openclash/core/clash_meta
+file files/etc/openclash/core/clash_meta | grep -q 'ELF 64-bit.*ARM aarch64'
+chmod 0755 files/etc/openclash/core/clash_meta
+{
+  printf 'OpenClash core revision: %s\n' "$core_revision"
+  printf 'OpenClash core URL: %s\n' "$core_url"
+  sha256sum "$ROOT/output/openclash-core.tar.gz" files/etc/openclash/core/clash_meta
+} > "$ROOT/output/openclash-core.txt"
+rm "$ROOT/output/openclash-core.tar.gz"
 cp "$ROOT/config.seed" .config
 mkdir -p "$ROOT/output"
 make defconfig
@@ -28,6 +48,7 @@ mkdir -p "$ROOT/output"
   printf 'OpenWrt: '; git rev-parse HEAD
   printf 'Device fixes: '; git -C "$ROOT/device-fixes" rev-parse HEAD
   printf 'OpenClash: '; git -C "$ROOT/OpenClash" rev-parse HEAD
+  printf 'Argon: '; git -C package/luci-theme-argon rev-parse HEAD
   ./scripts/feeds list -s
 } > "$ROOT/output/sources.txt"
 cp .config "$ROOT/output/build.config"
