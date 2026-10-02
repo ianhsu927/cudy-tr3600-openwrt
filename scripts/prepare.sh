@@ -18,6 +18,10 @@ fi
 git clone --depth 1 https://github.com/hyqhyq3/openwrt-cudy-tr3600.git "$ROOT/device-fixes"
 git apply --check "$ROOT/device-fixes/cudy-tr3600-v1-fixes.patch"
 git apply "$ROOT/device-fixes/cudy-tr3600-v1-fixes.patch"
+# Generate defaults only for new TR3600 radios; retained wireless UCI stays intact.
+git apply --check "$ROOT/scripts/patches/tr3600-wireless-defaults.patch"
+git apply "$ROOT/scripts/patches/tr3600-wireless-defaults.patch"
+cp "$ROOT/scripts/patches/tr3600-wireless-defaults.patch" "$ROOT/output/"
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 git clone --depth 1 https://github.com/vernesong/OpenClash.git "$ROOT/OpenClash"

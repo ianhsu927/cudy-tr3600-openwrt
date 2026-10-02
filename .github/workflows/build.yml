@@ -30,6 +30,11 @@ jobs:
       - name: Download sources
         working-directory: openwrt
         run: make download -j4
+      - name: Test wireless defaults
+        run: |
+          make -C openwrt package/ucode/host/compile -j2
+          set -o pipefail
+          python3 scripts/test-wireless-defaults.py openwrt/staging_dir/hostpkg/bin/ucode openwrt/package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc | tee output/wireless-defaults-tests.txt
       - name: Compile firmware
         working-directory: openwrt
         run: |
