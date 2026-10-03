@@ -50,8 +50,8 @@ add_custom_package() {
   printf '%s: %s (%s)\n' "$name" "$revision" "$repo" >> "$custom_sources"
 }
 add_custom_package luci-app-usb-tethering a752832a17261a6ccf2474defa6b3e5d7848427b luci-app-usb-tethering luci-app-usb-tethering
-add_custom_package luci-app-tr3600-manager 80d09d8a661bb648158b2ffaade15d929b78efc7 . luci-app-tr3600-manager
-add_custom_package luci-app-net-doctor a95704e1d6b0b6328ee23eec2747d5fc2c04e710 . luci-app-net-doctor
+add_custom_package luci-app-tr3600-manager 979e4560a7e07fd974bae18a6db5d286b7eb1776 . luci-app-tr3600-manager
+add_custom_package luci-app-net-doctor be42a485885ae112759702556d9961228559103c . luci-app-net-doctor
 # One owner for tr3600.led: the manager already includes LED control.
 test ! -d package/luci-app-tr3600-led
 for backend in tr3600.manager tr3600.fan tr3600.led; do
