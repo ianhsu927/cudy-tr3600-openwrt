@@ -31,9 +31,35 @@ cp -a "$ROOT/OpenClash/luci-app-openclash" package/
 git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 ./scripts/feeds uninstall luci-app-argon-config
 git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/luci-app-argon-config
-# The USB tethering repository contains the package in a subdirectory.
-git clone --depth 1 https://github.com/ianhsu927/luci-app-usb-tethering.git "$ROOT/usb-tethering"
-cp -a "$ROOT/usb-tethering/luci-app-usb-tethering" package/
+# Pin custom plugins, so firmware includes the verified fan lock fix.
+# Fetch into a scratch directory and keep only package files in the build tree.
+custom_sources="$ROOT/output/custom-plugin-sources.txt"
+: > "$custom_sources"
+add_custom_package() {
+  local repo=$1 revision=$2 subdir=$3 name=$4 source
+  source="$ROOT/custom-plugins/$name"
+  mkdir -p "$source"
+  git -C "$source" init -q
+  git -C "$source" remote add origin "https://github.com/ianhsu927/$repo.git"
+  git -C "$source" fetch --depth 1 origin "$revision"
+  git -C "$source" checkout --detach FETCH_HEAD
+  test "$(git -C "$source" rev-parse HEAD)" = "$revision"
+  test -f "$source/$subdir/Makefile"
+  mkdir -p "package/$name"
+  tar -C "$source/$subdir" --exclude=.git -cf - . | tar -C "package/$name" -xf -
+  printf '%s: %s (%s)\n' "$name" "$revision" "$repo" >> "$custom_sources"
+}
+add_custom_package luci-app-usb-tethering a752832a17261a6ccf2474defa6b3e5d7848427b luci-app-usb-tethering luci-app-usb-tethering
+add_custom_package luci-app-tr3600-manager 80d09d8a661bb648158b2ffaade15d929b78efc7 . luci-app-tr3600-manager
+add_custom_package luci-app-net-doctor a95704e1d6b0b6328ee23eec2747d5fc2c04e710 . luci-app-net-doctor
+# One owner for tr3600.led: the manager already includes LED control.
+test ! -d package/luci-app-tr3600-led
+for backend in tr3600.manager tr3600.fan tr3600.led; do
+  test -x "package/luci-app-tr3600-manager/root/usr/libexec/rpcd/$backend"
+done
+test -x package/luci-app-tr3600-manager/root/etc/init.d/tr3600-fan
+test -x package/luci-app-tr3600-manager/root/usr/sbin/tr3600-fan-guard
+test -f package/luci-app-tr3600-manager/root/etc/config/tr3600_fan
 # Bundle the same ARM64 Meta core distributed by OpenClash. Resolve the
 # branch once so the downloaded binary and recorded revision stay aligned.
 mkdir -p "$ROOT/output" files/etc/openclash/core
@@ -70,7 +96,7 @@ mkdir -p "$ROOT/output"
   printf 'OpenClash: '; git -C "$ROOT/OpenClash" rev-parse HEAD
   printf 'Argon: '; git -C package/luci-theme-argon rev-parse HEAD
   printf 'Argon config: '; git -C package/luci-app-argon-config rev-parse HEAD
-  printf 'USB tethering: '; git -C "$ROOT/usb-tethering" rev-parse HEAD
+  cat "$custom_sources"
   ./scripts/feeds list -s
 } > "$ROOT/output/sources.txt"
 cp .config "$ROOT/output/build.config"

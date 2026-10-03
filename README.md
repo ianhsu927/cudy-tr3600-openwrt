@@ -8,6 +8,9 @@
 - 中文 LuCI、HTTPS 管理、OpenClash 插件和 firewall4/nftables 依赖。
 - Argon 主题及 Argon 配置插件、SQM 队列管理、nlbwmon 流量统计。
 - `luci-app-usb-tethering` USB 手机热点管理插件（网络 → USB 热点）。
+- `luci-app-tr3600-manager` 0.2.2 硬件管家（状态 → TR3600 硬件管家），包含硬件状态、灯光开关、风扇设置及散热保护服务；已包含 BusyBox 配置锁兼容修复。
+- `luci-app-net-doctor` 0.1.0 断网诊断助手（状态 → 断网诊断），提供只读接口、路由、DNS、ICMP 和 HTTPS 检测。
+- 三个自研插件固定到已确认的源码提交，版本记录在 `custom-plugin-sources.txt` 和 `sources.txt`。不加入独立灯光插件，避免与硬件管家的 `tr3600.led` 后端冲突；不加入 mwan3-nft。
 - 预装 OpenClash 官方分发的 ARM64 Meta/Mihomo 内核，版本来源及 SHA256 写入 openclash-core.txt。
 - 安卓 USB 共享：RNDIS、CDC Ethernet、CDC NCM。
 - iPhone USB 共享：ipheth、usbmuxd、libimobiledevice。
@@ -46,6 +49,18 @@
 
 多 WAN 自动切换未配置；同时使用有线 WAN 时按需求调整路由 metric。驱动预装不代表所有手机型号均已实测。
 
+## 自研插件
+
+| 插件 | 版本 | 固定源码提交 |
+| --- | --- | --- |
+| USB 热点管理 | 1.1.0 | `a752832a17261a6ccf2474defa6b3e5d7848427b` |
+| TR3600 硬件管家 | 0.2.2 | `80d09d8a661bb648158b2ffaade15d929b78efc7` |
+| 断网诊断助手 | 0.1.0 | `a95704e1d6b0b6328ee23eec2747d5fc2c04e710` |
+
+硬件管家默认使用系统风扇温控。手动设置表示最低档位，温度升高时仍会自动升档；启用自定义设置前保护服务必须运行。首次启动由 OpenWrt 包安装机制启用 `tr3600-fan` 服务。保留配置升级时沿用已有 `tr3600_fan` 设置。
+
+断网诊断助手只检测路由器默认 IPv4 出口，不自动修复网络，也不代表 USB 或客户端路径已经验证。各插件源码检查和此前实机验证不能替代这版固件的完整编译与刷机验收；以本次 Actions 结果及设备验证为准。
+
 ## 刷机
 
 首次从原厂迁移先阅读 Cudy 官方 TR3600 v1 下载页的中间固件 Readme：
@@ -61,5 +76,7 @@ https://www.cudy.com/zh-cn/pages/download-center/tr3600-1-0
 - https://github.com/jerrykuku/luci-theme-argon
 - https://github.com/jerrykuku/luci-app-argon-config
 - https://github.com/ianhsu927/luci-app-usb-tethering
+- https://github.com/ianhsu927/luci-app-tr3600-manager
+- https://github.com/ianhsu927/luci-app-net-doctor
 
 上游补丁和软件保留各自许可与版权；不重新声明其许可证。
