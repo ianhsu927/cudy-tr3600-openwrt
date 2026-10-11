@@ -60,6 +60,18 @@ done
 test -x package/luci-app-tr3600-manager/root/etc/init.d/tr3600-fan
 test -x package/luci-app-tr3600-manager/root/usr/sbin/tr3600-fan-guard
 test -f package/luci-app-tr3600-manager/root/etc/config/tr3600_fan
+# UU Game Booster LuCI app (Lua). Only the LuCI package is vendored; the
+# accelerator binary is downloaded from NetEase at runtime by its own script.
+uu_revision=4a9da91a9e3eab5d9ae231f27671126268f72cd8
+uu_source="$ROOT/custom-plugins/uu-booster"
+mkdir -p "$uu_source"
+git -C "$uu_source" init -q
+git -C "$uu_source" remote add origin https://github.com/lmq8267/luci-app-uugamebooster.git
+git -C "$uu_source" fetch --depth 1 origin "$uu_revision"
+git -C "$uu_source" checkout --detach FETCH_HEAD
+test "$(git -C "$uu_source" rev-parse HEAD)" = "$uu_revision"
+test -f "$uu_source/luci-app-uugamebooster/Makefile"
+cp -a "$uu_source/luci-app-uugamebooster" package/
 # Bundle the same ARM64 Meta core distributed by OpenClash. Resolve the
 # branch once so the downloaded binary and recorded revision stay aligned.
 mkdir -p "$ROOT/output" files/etc/openclash/core
@@ -96,6 +108,7 @@ mkdir -p "$ROOT/output"
   printf 'OpenClash: '; git -C "$ROOT/OpenClash" rev-parse HEAD
   printf 'Argon: '; git -C package/luci-theme-argon rev-parse HEAD
   printf 'Argon config: '; git -C package/luci-app-argon-config rev-parse HEAD
+  printf 'UU booster: %s (lmq8267/luci-app-uugamebooster)\n' "$uu_revision"
   cat "$custom_sources"
   ./scripts/feeds list -s
 } > "$ROOT/output/sources.txt"

@@ -10,6 +10,7 @@
 - `luci-app-usb-tethering` USB 手机热点管理插件（网络 → USB 热点）。
 - `luci-app-tr3600-manager` 0.2.2 硬件管家（状态 → TR3600 硬件管家），包含硬件状态、灯光开关、风扇设置及散热保护服务；已包含 BusyBox 配置锁兼容修复。
 - `luci-app-net-doctor` 0.1.0 断网诊断助手（状态 → 断网诊断），提供只读接口、路由、DNS、ICMP 和 HTTPS 检测。
+- `luci-app-uugamebooster` 网易 UU 游戏加速器（服务 → 网易UU游戏加速器），固定到 lmq8267 仓库的确认提交；仅打包 LuCI 前端，加速器主程序在设备上按架构从网易服务器下载。为兼容 fw4/nftables，同时预装 `iptables-nft` 和 `kmod-ipt-nat`。
 - 三个自研插件固定到已确认的源码提交，版本记录在 `custom-plugin-sources.txt` 和 `sources.txt`。不加入独立灯光插件，避免与硬件管家的 `tr3600.led` 后端冲突；不加入 mwan3-nft。
 - 预装 OpenClash 官方分发的 ARM64 Meta/Mihomo 内核，版本来源及 SHA256 写入 openclash-core.txt。
 - 安卓 USB 共享：RNDIS、CDC Ethernet、CDC NCM。
@@ -61,6 +62,12 @@
 
 断网诊断助手只检测路由器默认 IPv4 出口，不自动修复网络，也不代表 USB 或客户端路径已经验证。各插件源码检查和此前实机验证不能替代这版固件的完整编译与刷机验收；以本次 Actions 结果及设备验证为准。
 
+## UU 加速器
+
+预装 `luci-app-uugamebooster`（服务 → 网易UU游戏加速器），源码固定到 `lmq8267/luci-app-uugamebooster` 的确认提交，版本记录在 `sources.txt`。插件只包含 LuCI 前端：首次启用时由设备按 CPU 架构（本机型为 aarch64）从网易服务器下载加速器主程序到 `/var/tmp/uu`，本仓库不包含该二进制。
+
+默认关闭（`uuplugin.enabled=0`、`addfw=0`）；在页面填写“型号”并打开开关后，插件按需创建 UU 的 `tun16+` 防火墙区域并启动服务。为兼容本固件的 fw4/nftables 环境，已预装 `iptables-nft` 与 `kmod-ipt-nat`，缺少时加速会失败。加速效果取决于网易服务器连通性，本工作流未做实测，请以真机验证为准。
+
 ## 刷机
 
 首次从原厂迁移先阅读 Cudy 官方 TR3600 v1 下载页的中间固件 Readme：
@@ -78,5 +85,6 @@ https://www.cudy.com/zh-cn/pages/download-center/tr3600-1-0
 - https://github.com/ianhsu927/luci-app-usb-tethering
 - https://github.com/ianhsu927/luci-app-tr3600-manager
 - https://github.com/ianhsu927/luci-app-net-doctor
+- https://github.com/lmq8267/luci-app-uugamebooster
 
 上游补丁和软件保留各自许可与版权；不重新声明其许可证。
