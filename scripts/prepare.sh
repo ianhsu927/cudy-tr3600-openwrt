@@ -22,6 +22,11 @@ git apply "$ROOT/device-fixes/cudy-tr3600-v1-fixes.patch"
 git apply --check "$ROOT/scripts/patches/tr3600-wireless-defaults.patch"
 git apply "$ROOT/scripts/patches/tr3600-wireless-defaults.patch"
 cp "$ROOT/scripts/patches/tr3600-wireless-defaults.patch" "$ROOT/output/"
+# Change only the generated LAN default; retained network UCI stays intact.
+git apply --check "$ROOT/scripts/patches/tr3600-lan-default.patch"
+git apply "$ROOT/scripts/patches/tr3600-lan-default.patch"
+python3 "$ROOT/scripts/test-lan-default.py" package/base-files/files/bin/config_generate | tee "$ROOT/output/lan-default-tests.txt"
+cp "$ROOT/scripts/patches/tr3600-lan-default.patch" "$ROOT/output/"
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 git clone --depth 1 https://github.com/vernesong/OpenClash.git "$ROOT/OpenClash"

@@ -1,0 +1,11 @@
+--- a/package/base-files/files/bin/config_generate
++++ b/package/base-files/files/bin/config_generate
+@@ -163,7 +163,7 @@
+ 		static)
+ 			local ipad netm prefix
+ 			case "$1" in
+-				lan) ipad=${ipaddr:-"192.168.1.1"} ;;
++				lan) ipad=${ipaddr:-"192.168.10.1"} ;;
+ 				*) ipad=${ipaddr:-"192.168.$((addr_offset++)).1"} ;;
+ 			esac
+ 
